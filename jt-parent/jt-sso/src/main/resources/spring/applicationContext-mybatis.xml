@@ -23,13 +23,13 @@
 	<property name="mapperLocations"
 		value="classpath:/mybatis/mappers/*.xml"/>
 		<property name="typeAliasesPackage"
-		value="com.jt.manage.pojo"/>
+		value="com.jt.sso.pojo"/>
 	</bean>
 
 
 	<!--Spring为Mapper接口创建代理对象  -->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.jt.manage.dao"/>
+		<property name="basePackage" value="com.jt.sso.dao"/>
 	</bean>
 
 

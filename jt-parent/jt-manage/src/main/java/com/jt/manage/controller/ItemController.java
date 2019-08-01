@@ -19,6 +19,7 @@ public class ItemController {
     ItemService itemService;
 
 
+
     @ResponseBody
     @RequestMapping("/query")
     public EasyUIResult ListItem(int page, int rows) {

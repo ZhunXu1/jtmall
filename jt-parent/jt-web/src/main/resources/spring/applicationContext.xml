@@ -23,14 +23,74 @@
 		<property name="locations">
 			<list>
 				<value>classpath:/property/jdbc.properties</value>
-				<!--哨兵整合-->
-				<!--<value>classpath:/property/redis-shards.properties</value>-->
-				<!--哨兵整合-->
-				<!--<value>classpath:/property/redis-sentinels.properties</value>-->
-				<!--<value>classpath:/property/redis-cluster.properties</value>-->
+				<!--httpclient整合-->
+				<value>classpath:/property/httpclient.properties</value>
+				<value>classpath:/property/redis-cluster.properties</value>
 			</list>
 		</property>
 	</bean>
+	<!-- jedis 配置-->
+	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig" >
+		<!--最大空闲数-->
+		<property name="maxIdle" value="${redis.maxIdle}" />
+		<!--最大建立连接等待时间-->
+		<property name="maxWaitMillis" value="${redis.maxWait}" />
+		<!--是否在从池中取出连接前进行检验,如果检验失败,则从池中去除连接并尝试取出另一个-->
+		<property name="testOnBorrow" value="${redis.testOnBorrow}" />
+		<property name="maxTotal" value="${redis.maxTotal}" />
+		<property name="minIdle" value="${redis.minIdle}" />
+	</bean>
+
+	<!--通过工厂模式获取数据  -->
+	<bean id="jedisCluster" class="com.jt.common.factory.JedisClusterFactory">
+		<!--引入配置文件源文件  -->
+		<property name="propertySource">
+			<value>classpath:/property/redis-cluster.properties</value>
+		</property>
+		<!--引入池配置文件  -->
+		<property name="poolConfig" ref="poolConfig"/>
+		<!--添加配置前缀-->
+		<property name="redisNodePrefix" value="redis.cluster"/>
+	</bean>
+	<!-- 定义httpclient连接池 -->
+	<bean id="httpClientConnectionManager" class="org.apache.http.impl.conn.PoolingHttpClientConnectionManager" destroy-method="close">
+		<!-- 设置连接总数 -->
+		<property name="maxTotal" value="${http.pool.maxTotal}"></property>
+		<!-- 设置每个地址的并发数 -->
+		<property name="defaultMaxPerRoute" value="${http.pool.defaultMaxPerRoute}"></property>
+	</bean>
+
+	<!-- 定义 HttpClient工厂，这里使用HttpClientBuilder构建-->
+	<bean id="httpClientBuilder" class="org.apache.http.impl.client.HttpClientBuilder" factory-method="create">
+		<property name="connectionManager" ref="httpClientConnectionManager"></property>
+	</bean>
+
+	<!-- 得到httpClient的实例 -->
+	<bean id="httpClient" factory-bean="httpClientBuilder" factory-method="build"/>
+
+	<!-- 定期清理无效的连接 -->
+	<bean class="com.jt.common.util.IdleConnectionEvictor" destroy-method="shutdown">
+
+		<constructor-arg index="0" ref="httpClientConnectionManager" />
+		<!-- 间隔一分钟清理一次 -->
+		<constructor-arg index="1" value="60000" />
+	</bean>
+
+	<!-- 定义requestConfig的工厂 -->
+	<bean id="requestConfigBuilder" class="org.apache.http.client.config.RequestConfig.Builder">
+		<!-- 从连接池中获取到连接的最长时间 -->
+		<property name="connectionRequestTimeout" value="${http.request.connectionRequestTimeout}"/>
+		<!-- 创建连接的最长时间 -->
+		<property name="connectTimeout" value="${http.request.connectTimeout}"/>
+		<!-- 数据传输的最长时间 -->
+		<property name="socketTimeout" value="${http.request.socketTimeout}"/>
+		<!-- 提交请求前测试连接是否可用 -->
+		<property name="staleConnectionCheckEnabled" value="${http.request.staleConnectionCheckEnabled}"/>
+	</bean>
+
+	<!-- 得到requestConfig实例 -->
+	<bean id="requestConfig" factory-bean="requestConfigBuilder" factory-method="build" />
+
 	
 	<!--2.2配置数据源  -->
 	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
@@ -39,45 +99,5 @@
         <property name="username" value="${jdbc.username}" />
         <property name="password" value="${jdbc.password}" />
 	</bean>
-	
-	
-	<!--3.配置事务控制  -->
-	<tx:annotation-driven/>
-	
-	<!--3.1 定义事务管理器  -->
-	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
-	
-	<!--3.2 定义事务策略
-		
-		propagation="REQUIRED" 执行该操作 必须添加事务
-		propagation="SUPPORTS" 事务支持的,原来的操作有事务,则添加事务,
-							        原有的操作没有事务,则不添加事务
-							        
-		propagation="NEVER"    从不添加事务	
-		propagation="REQUIRES_NEW"   都会创建一个新的事务	
-		read-only="true"       该操作只读		        
-	  -->
-	<tx:advice id="txAdvice" transaction-manager="transactionManager">
-		<tx:attributes>
-			<tx:method name="save*"   propagation="REQUIRED"/>
-			<tx:method name="delete*" propagation="REQUIRED"/>
-			<tx:method name="update*" propagation="REQUIRED"/>
-			<tx:method name="find*"   propagation="SUPPORTS" read-only="true"/>
-			<tx:method name="*"       propagation="SUPPORTS" read-only="true"/>
-		</tx:attributes>
-	</tx:advice>
-	
-	<!--3.3 定义事务切面  
-		(pointcut*, advisor*, aspect*)
-		
-		expression 切入点表达式
-		within(包名.类名)  按类匹配  控制粒度 粗粒度
-		execution(返回值类型 包名.类名.方法名(参数列表))
-	-->
-	<aop:config>
-		<aop:pointcut expression="execution(* com.jt.web.service..*.*(..))" id="pc"/>
-		<aop:advisor advice-ref="txAdvice" pointcut-ref="pc"/>
-	</aop:config>
+
 </beans>

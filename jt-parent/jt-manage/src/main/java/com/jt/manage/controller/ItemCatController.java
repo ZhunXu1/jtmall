@@ -3,6 +3,7 @@ package com.jt.manage.controller;
 import com.jt.common.vo.EasyUITree;
 import com.jt.manage.service.ItemCatService;
 import com.jt.manage.service.ItemService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +48,8 @@ public class ItemCatController {
     @RequestMapping(value="/cat/queryItemName",produces="text/html;charset=UTF-8")
     @ResponseBody
     public String queryItemName(Long itemId){
+        StringUtils
+                .trimToEmpty("aaa");
         return itemCatService.queryItemName(itemId);
     }
     @RequestMapping("/cat/list")

@@ -10,6 +10,7 @@
     <modules>
         <module>jt-sso</module>
         <module>jt-common1</module>
+        <module>jt-web</module>
     </modules>
     <packaging>pom</packaging>
 

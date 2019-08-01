@@ -59,4 +59,14 @@ public class ItemServiceImpl implements ItemService {
         int status = 1;
         itemDao.updateStatus(ids,status);
     }
+
+    @Override
+    public Item findItemById(Long itemId) {
+        Item item = new Item();
+        item.setId(itemId);
+        List<Item> items = itemDao.select(item);
+        return items.get(0);
+    }
+
+
 }

@@ -105,6 +105,7 @@ function reg() {
 	}
 	
 	if (passed) {
+		debugger
 		$("#registsubmit").attr({
 			"disabled" : "disabled"
 		}).removeClass().addClass("btn-img btn-regist wait-btn");
@@ -113,11 +114,12 @@ function reg() {
 		var _phone = $("#personRegForm [name=phone]").val();
 		$.ajax({
 			type : "POST",
-			url : "/service/user/doRegister",
+			url : "/user/doRegister",
 			contentType : "application/x-www-form-urlencoded; charset=utf-8",
 			data : {password:_password,username:_username,phone:_phone},
 			dataType : 'json',
 			success : function(result) {
+				debugger
 				if(result.status == "200"){
 					// 注册成功，去登录页
 					showMessage('注册成功，请登录！');

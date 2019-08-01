@@ -21,7 +21,13 @@ public class Item extends BasePojo{
 	private String image;		//商品图片信息 1.jpg,2.jpg
 	private Long cid;			//商品分类ID
 	private Integer status;		//1正常，2下架
-	
+
+	private String[] images;
+	//为了实现购物页面图片展示,需要添加一个get方法 images[0]
+	public String[] getImages(){
+		return image.split(",");
+	}
+
 	public Long getId() {
 		return id;
 	}

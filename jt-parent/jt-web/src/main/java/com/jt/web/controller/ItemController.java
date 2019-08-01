@@ -1,25 +1,31 @@
 package com.jt.web.controller;
 
-import com.jt.common.po.EasyUIResult;
-import com.jt.web.service.ItemService;
+import com.jt.common.po.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * @Date:2019/6/15 Description:com.jt.manage.controller
+ * @Date:2019/7/1 Description:com.jt.web.manage.controller
  */
 @Controller
-@RequestMapping("/item")
+@RequestMapping("/items")
 public class ItemController {
-    @Autowired
+
+   @Autowired
     ItemService itemService;
-    @ResponseBody
-    @RequestMapping("/query")
-    public EasyUIResult ListItem(int page, int rows){
 
-        return itemService.findItemByPage(page,rows);
+   @RequestMapping("/{itemId}")
+    public String findItemById(@PathVariable Long itemId, Model model){
+        Item item = itemService.findItemById(itemId);
+        model.addAttribute("item",item);
+
+       /* ItemDesc itemDesc = itemService.findItemDescById(itemId);
+        model.addAttribute("itemDesc", itemDesc);*/
+
+        //跳转到商品展现页面
+        return "item";
     }
-
 }

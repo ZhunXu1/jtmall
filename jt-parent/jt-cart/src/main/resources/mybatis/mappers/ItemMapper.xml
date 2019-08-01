@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jt.manage.dao.ItemDao">
+	<!--
+		ctrl + shift +y  小写
+		ctrl + shift +x  大写
+	  -->
+	<select id="findItemByPage" resultType="com.jt.common.po.Item">
+		select * from tb_item order by updated desc limit #{start},#{rows}
+	</select>
+	
+	<!--批量修改状态  
+		Array 数组   void updateStatus(Long[] ids);
+		<foreach collection="array"  固定写法
+		
+		List集合		void updateStatus(List idList);
+		<foreach collection="list"  固定写法
+	
+		Map集合		void updateStatus(@Param("ids") List ids);
+		<foreach collection="map中的Key"  固定写法
+	-->
+	<update id="updateStatus">
+		update tb_item set status = #{status},updated = now() 
+		where id  in (
+		<foreach collection="ids" item="id" separator=",">
+			#{id}
+		</foreach>
+		)
+	</update>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>

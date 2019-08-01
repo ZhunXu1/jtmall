@@ -592,14 +592,17 @@ function checkPin(option) {
         validateSettings.error.run(option, option.prompts.error.fullNumberName);
         return;
     }
+    debugger
     if (!namestate || nameold != pin) {
         if (nameold != pin) {
             nameold = pin;
             option.errorEle.html("<em style='color:#999'>检验中……</em>");
+
             $.ajax({
             	url : "http://sso.jt.com/user/check/"+escape(pin)+"/1?r=" + Math.random(),
             	dataType : "jsonp",
             	success : function(data) {
+
                     checkpin = data.data?"1":"0";
                     if (!data.data) {
                         validateSettings.succeed.run(option);

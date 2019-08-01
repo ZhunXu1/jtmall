@@ -367,6 +367,7 @@ $("#loginsubmit").click(function () {
         $(this).attr({ "disabled": "disabled" });
         var _username = $("#formlogin [name=username]").val();
         var _password = $("#formlogin [name=password]").val();
+        debugger
         $.ajax({
             type: "POST",
             url: "/service/user/doLogin?r=" + Math.random(),
@@ -380,6 +381,7 @@ $("#loginsubmit").click(function () {
                 $this.removeAttr("disabled");
             },
             success: function (result) {
+                debugger
                 if (result) {
                     var obj = eval(result);
                     if (obj.status == 200) {

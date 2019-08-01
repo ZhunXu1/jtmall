@@ -18,4 +18,6 @@ public interface ItemService {
     void instock(Long[] ids);
 
     void reshelf(Long[] ids);
+
+    Item findItemById(Long itemId);
 }

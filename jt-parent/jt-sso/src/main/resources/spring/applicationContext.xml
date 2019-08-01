@@ -25,11 +25,33 @@
 				<!--<value>classpath:/property/redis-shards.properties</value>-->
 				<!--哨兵整合-->
 				<!--<value>classpath:/property/redis-sentinels.properties</value>-->
-				<!--<value>classpath:/property/redis-cluster.properties</value>-->
+				<value>classpath:/property/redis-cluster.properties</value>
 			</list>
 		</property>
 	</bean>
-	
+	<!-- jedis 配置-->
+	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig" >
+		<!--最大空闲数-->
+		<property name="maxIdle" value="${redis.maxIdle}" />
+		<!--最大建立连接等待时间-->
+		<property name="maxWaitMillis" value="${redis.maxWait}" />
+		<!--是否在从池中取出连接前进行检验,如果检验失败,则从池中去除连接并尝试取出另一个-->
+		<property name="testOnBorrow" value="${redis.testOnBorrow}" />
+		<property name="maxTotal" value="${redis.maxTotal}" />
+		<property name="minIdle" value="${redis.minIdle}" />
+	</bean>
+
+	<!--通过工厂模式获取数据  -->
+	<bean id="jedisCluster" class="com.jt.common.factory.JedisClusterFactory">
+		<!--引入配置文件源文件  -->
+		<property name="propertySource">
+			<value>classpath:/property/redis-cluster.properties</value>
+		</property>
+		<!--引入池配置文件  -->
+		<property name="poolConfig" ref="poolConfig"/>
+		<!--添加配置前缀-->
+		<property name="redisNodePrefix" value="redis.cluster"/>
+	</bean>
 	<!--2.2配置数据源  -->
 	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
         <property name="driverClassName" value="${jdbc.driver}" />
@@ -38,7 +60,7 @@
         <property name="password" value="${jdbc.password}" />
 	</bean>
 	
-	
+	<bean id="ObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"></bean>
 	<!--3.配置事务控制  -->
 	<tx:annotation-driven/>
 	
@@ -57,7 +79,7 @@
 		propagation="REQUIRES_NEW"   都会创建一个新的事务	
 		read-only="true"       该操作只读		        
 	  -->
-	<!--<tx:advice id="txAdvice" transaction-manager="transactionManager">
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
 		<tx:attributes>
 			<tx:method name="save*"   propagation="REQUIRED"/>
 			<tx:method name="delete*" propagation="REQUIRED"/>
@@ -67,15 +89,15 @@
 		</tx:attributes>
 	</tx:advice>
 	
-	&lt;!&ndash;3.3 定义事务切面
+	<!--&lt;!&ndash;3.3 定义事务切面
 		(pointcut*, advisor*, aspect*)
 		
 		expression 切入点表达式
 		within(包名.类名)  按类匹配  控制粒度 粗粒度
 		execution(返回值类型 包名.类名.方法名(参数列表))
-	&ndash;&gt;
+	&ndash;&gt;-->
 	<aop:config>
 		<aop:pointcut expression="execution(* com.jt.sso.service..*.*(..))" id="pc"/>
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="pc"/>
-	</aop:config>-->
+	</aop:config>
 </beans>

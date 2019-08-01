@@ -29,9 +29,7 @@
 
 	<!--Spring为Mapper接口创建代理对象  -->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.jt.manage.dao"/>
+		<property name="basePackage" value="com.jt.web.dao"/>
 	</bean>
-
-
 	<jdbc:embedded-database id="dataSource"/>
 </beans>
